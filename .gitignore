@@ -82,6 +82,7 @@ target/
 # dataset
 *.zip
 /dataset
+/datasetCache
 
 # out
 *.out

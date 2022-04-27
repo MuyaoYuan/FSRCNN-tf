@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
-import tensorflowjs as tfjs
+# import tensorflowjs as tfjs
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
