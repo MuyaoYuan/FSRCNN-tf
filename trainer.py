@@ -46,11 +46,11 @@ class Trainer:
             for item in self.dataset_train:
                 self.train_step(item)
                 # print(f'Loss: {self.train_loss.result()}')
-                break
+                # break
             
             for valid_item in self.dataset_valid:
                 self.test_step(valid_item)
-                break
+                # break
 
             print(
                 f'Epoch {epoch + 1}, '

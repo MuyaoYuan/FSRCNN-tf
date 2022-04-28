@@ -19,7 +19,7 @@ class Reloader:
         inputItem = testItem[0][0].numpy()
         labelItem = testItem[1][0].numpy()
         outputItem = output[0].numpy()
-        print(outputItem.shape)
+        # print(outputItem.shape)
         input_img = Image.fromarray(np.uint8(inputItem))
         label_img = Image.fromarray(np.uint8(labelItem))
         output_img = Image.fromarray(np.uint8(outputItem))
