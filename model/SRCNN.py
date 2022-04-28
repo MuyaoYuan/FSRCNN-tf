@@ -1,8 +1,9 @@
+import os 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'   # 要放在 import tensorflow as tf 前面才会起作用 ！！！
 import tensorflow as tf
 from tensorflow import keras
-# import tensorflowjs as tfjs
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+import tensorflowjs as tfjs
+# os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 class SRCNN(keras.Model):
     def __init__(self, n_colors):

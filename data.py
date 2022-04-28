@@ -1,8 +1,9 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'   # 要放在 import tensorflow as tf 前面才会起作用 ！！！
 import tensorflow as tf
 
 from tensorflow.python.data.experimental import AUTOTUNE
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 class DIV2K:
     def __init__(self,
@@ -35,7 +36,8 @@ class DIV2K:
     def dataset(self, batch_size=16, repeat_count=None, random_transform=True):
         ds = tf.data.Dataset.zip((self.lr_dataset(), self.hr_dataset()))
         if random_transform:
-            ds = ds.map(lambda lr, hr: random_crop(lr, hr, scale=self.scale), num_parallel_calls=AUTOTUNE)
+            # ds = ds.map(lambda lr, hr: random_crop(lr, hr, scale=self.scale), num_parallel_calls=AUTOTUNE)
+            ds = ds.map(lambda lr, hr: random_crop_upsampled(lr, hr), num_parallel_calls=AUTOTUNE) # 这个变换用于预先上采样的情况
             ds = ds.map(random_rotate, num_parallel_calls=AUTOTUNE)
             ds = ds.map(random_flip, num_parallel_calls=AUTOTUNE)
         ds = ds.batch(batch_size)
@@ -86,7 +88,8 @@ class DIV2K:
         return os.path.join(self.images_dir, f'DIV2K_{self.subset}_HR')
 
     def _lr_images_dir(self):
-        return os.path.join(self.images_dir, f'DIV2K_{self.subset}_LR_{self.downgrade}_X{self.scale}')
+        # return os.path.join(self.images_dir, f'DIV2K_{self.subset}_LR_{self.downgrade}_X{self.scale}')
+        return os.path.join(self.images_dir, f'DIV2K_{self.subset}_HR_{self.downgrade}') # 这个路径用于预先上采样的情况
 
     @staticmethod
     def _images_dataset(image_files):
@@ -119,6 +122,18 @@ def random_crop(lr_img, hr_img, hr_crop_size=96, scale=2):
 
     lr_img_cropped = lr_img[lr_h:lr_h + lr_crop_size, lr_w:lr_w + lr_crop_size]
     hr_img_cropped = hr_img[hr_h:hr_h + hr_crop_size, hr_w:hr_w + hr_crop_size]
+
+    return lr_img_cropped, hr_img_cropped
+
+# 这个变换用于预先上采样的情况
+def random_crop_upsampled(lr_img, hr_img, crop_size=96):
+    lr_img_shape = tf.shape(lr_img)[:2]
+    
+    lr_w = tf.random.uniform(shape=(), maxval=lr_img_shape[1] - crop_size + 1, dtype=tf.int32)
+    lr_h = tf.random.uniform(shape=(), maxval=lr_img_shape[0] - crop_size + 1, dtype=tf.int32)
+
+    lr_img_cropped = lr_img[lr_h:lr_h + crop_size, lr_w:lr_w + crop_size]
+    hr_img_cropped = hr_img[lr_h:lr_h + crop_size, lr_w:lr_w + crop_size]
 
     return lr_img_cropped, hr_img_cropped
 
