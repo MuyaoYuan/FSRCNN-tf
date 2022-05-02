@@ -10,12 +10,12 @@ class Converter:
     def __init__(self):
         self.trained_model = keras.models.load_model('trained_model/SRCNN.h5', compile=False)
         self.save_model = bulid_model(n_colors=3)
+        self.save_model.build([1, 480, 640, 3 ])
         for layer in self.save_model.layers:
             try:
                 layer.set_weights(self.trained_model.get_layer(name=layer.name).get_weights())
             except:
                 print("Could not transfer weights for layer {}".format(layer.name))
-        self.save_model.build([1, 480, 640, 3 ])
         print(self.save_model.summary())
         self.tfjs_target_dir = 'tfjs_model'
 
