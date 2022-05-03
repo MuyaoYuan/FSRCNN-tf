@@ -2,6 +2,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'   # 要放在 import tensorflow as tf 前面才会起作用 ！！！
 import tensorflow as tf
 from tensorflow import keras
+import numpy as np
 
 from model.SRCNN import bulid_model
 from data import DIV2K
@@ -10,8 +11,8 @@ class Trainer:
     def __init__(self, args):
         self.args = args
         self.model = bulid_model(n_colors=args.n_colors)
-        self.dataset_train = DIV2K().dataset()
-        self.dataset_valid = DIV2K(subset='valid').dataset()
+        self.dataset_train = DIV2K().dataset(repeat_count=1) # repeat_count=None 会一直重复
+        self.dataset_valid = DIV2K(subset='valid').dataset(repeat_count=1)
         self.lossFun = keras.losses.MeanSquaredError()
         self.optimizer = keras.optimizers.Adam()
         self.train_loss = keras.metrics.Mean(name='train_loss')
@@ -39,6 +40,8 @@ class Trainer:
         self.test_loss(t_loss)
 
     def train(self):
+        train_loss_arr = np.array([])
+        valid_loss_arr = np.array([])
         for epoch in range(self.epochs):
             self.train_loss.reset_states()
             self.test_loss.reset_states()
@@ -50,23 +53,27 @@ class Trainer:
             
             for valid_item in self.dataset_valid:
                 self.test_step(valid_item)
-                # break
+                break
 
             print(
                 f'Epoch {epoch + 1}, '
                 f'Loss: {self.train_loss.result()}, '    
                 f'Test Loss: {self.test_loss.result()}, '
             )
+            train_loss_arr = np.append(train_loss_arr, self.train_loss.result())
+            valid_loss_arr = np.append(valid_loss_arr, self.test_loss.result())
         os.makedirs('trained_model', exist_ok=True)
         self.model.save('trained_model/SRCNN.h5')
+        np.save('trained_model/train_loss_arr.npy', train_loss_arr)
+        np.save('trained_model/valid_loss_arr.npy', valid_loss_arr)
 
 if __name__  == '__main__':
     import argparse
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     parser = argparse.ArgumentParser(description='SR')
     args = parser.parse_args()
     args.n_colors = 3
-    args.epochs = 5
+    args.epochs = 500
     trianer = Trainer(args=args)
     trianer.train()
 
