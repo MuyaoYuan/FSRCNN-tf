@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 from data import DIV2K
 
 class Reloader:
-    def __init__(self):
-        self.model = keras.models.load_model('trained_model/SRCNN.h5', compile=False)
+    def __init__(self, model_path):
+        self.model = keras.models.load_model(model_path, compile=False)
         self.dataset_valid = DIV2K(subset='valid').dataset()
 
-    def lossShow():
-        train_loss_arr = np.load('trained_model/train_loss_arr.npy')
-        valid_loss_arr = np.load('trained_model/valid_loss_arr.npy')
+    def lossShow(train_loss_arr_path, valid_loss_arr_path, save_path):
+        train_loss_arr = np.load(train_loss_arr_path)
+        valid_loss_arr = np.load(valid_loss_arr_path)
         epochs = len(train_loss_arr)
         epochs_arr = np.arange(epochs) + 1
         plt.figure()
@@ -25,7 +25,7 @@ class Reloader:
         plt.ylabel('loss')
         plt.xlabel('epoches')
         plt.title('loss_curve')
-        plt.savefig('trained_model/loss_curve.png')
+        plt.savefig(save_path)
 
 
     def reload(self):
@@ -45,7 +45,7 @@ class Reloader:
 
 
 if __name__  == '__main__':
-    reloader = Reloader()
+    reloader = Reloader(model_path = 'trained_model/FSRCNN/FSRCNN.h5')
     reloader.reload()
-    Reloader.lossShow()
+    Reloader.lossShow('trained_model/FSRCNN/train_loss_arr.npy', 'trained_model/FSRCNN/valid_loss_arr.npy', 'trained_model/FSRCNN/loss_curve_fsrcnn')
 

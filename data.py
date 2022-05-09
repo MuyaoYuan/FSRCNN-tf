@@ -36,8 +36,8 @@ class DIV2K:
     def dataset(self, batch_size=16, repeat_count=None, random_transform=True):
         ds = tf.data.Dataset.zip((self.lr_dataset(), self.hr_dataset()))
         if random_transform:
-            # ds = ds.map(lambda lr, hr: random_crop(lr, hr, scale=self.scale), num_parallel_calls=AUTOTUNE)
-            ds = ds.map(lambda lr, hr: random_crop_upsampled(lr, hr), num_parallel_calls=AUTOTUNE) # 这个变换用于预先上采样的情况
+            ds = ds.map(lambda lr, hr: random_crop(lr, hr, scale=self.scale), num_parallel_calls=AUTOTUNE)
+            # ds = ds.map(lambda lr, hr: random_crop_upsampled(lr, hr), num_parallel_calls=AUTOTUNE) # 这个变换用于预先上采样的情况
             ds = ds.map(random_rotate, num_parallel_calls=AUTOTUNE)
             ds = ds.map(random_flip, num_parallel_calls=AUTOTUNE)
         ds = ds.batch(batch_size)
@@ -88,8 +88,8 @@ class DIV2K:
         return os.path.join(self.images_dir, f'DIV2K_{self.subset}_HR')
 
     def _lr_images_dir(self):
-        # return os.path.join(self.images_dir, f'DIV2K_{self.subset}_LR_{self.downgrade}_X{self.scale}')
-        return os.path.join(self.images_dir, f'DIV2K_{self.subset}_HR_{self.downgrade}') # 这个路径用于预先上采样的情况
+        return os.path.join(self.images_dir, f'DIV2K_{self.subset}_LR_{self.downgrade}_X{self.scale}')
+        # return os.path.join(self.images_dir, f'DIV2K_{self.subset}_HR_{self.downgrade}') # 这个路径用于预先上采样的情况
 
     @staticmethod
     def _images_dataset(image_files):

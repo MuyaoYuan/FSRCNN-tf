@@ -4,13 +4,14 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 
-from model.SRCNN import bulid_model
+# from model.SRCNN import bulid_model as build_SRCNN
+from model.FSRCNN import bulid_model as build_FSRCNN
 from data import DIV2K
 
 class Trainer:
     def __init__(self, args):
         self.args = args
-        self.model = bulid_model(n_colors=args.n_colors)
+        self.model = build_FSRCNN(scale_factor=args.scale, num_channels=args.n_colors)
         self.dataset_train = DIV2K().dataset(repeat_count=1) # repeat_count=None 会一直重复
         self.dataset_valid = DIV2K(subset='valid').dataset(repeat_count=1)
         self.lossFun = keras.losses.MeanSquaredError()
@@ -53,7 +54,7 @@ class Trainer:
             
             for valid_item in self.dataset_valid:
                 self.test_step(valid_item)
-                break
+                # break
 
             print(
                 f'Epoch {epoch + 1}, '
@@ -62,10 +63,14 @@ class Trainer:
             )
             train_loss_arr = np.append(train_loss_arr, self.train_loss.result())
             valid_loss_arr = np.append(valid_loss_arr, self.test_loss.result())
-        os.makedirs('trained_model', exist_ok=True)
-        self.model.save('trained_model/SRCNN.h5')
-        np.save('trained_model/train_loss_arr.npy', train_loss_arr)
-        np.save('trained_model/valid_loss_arr.npy', valid_loss_arr)
+        # os.makedirs('trained_model', exist_ok=True)
+        # self.model.save('trained_model/SRCNN.h5')
+        # np.save('trained_model/train_loss_arr.npy', train_loss_arr)
+        # np.save('trained_model/valid_loss_arr.npy', valid_loss_arr)
+        os.makedirs('trained_model/FSRCNN', exist_ok=True)
+        self.model.save('trained_model/FSRCNN/FSRCNN.h5')
+        np.save('trained_model/FSRCNN/train_loss_arr.npy', train_loss_arr)
+        np.save('trained_model/FSRCNN/valid_loss_arr.npy', valid_loss_arr)
 
 if __name__  == '__main__':
     import argparse
@@ -73,6 +78,7 @@ if __name__  == '__main__':
     parser = argparse.ArgumentParser(description='SR')
     args = parser.parse_args()
     args.n_colors = 3
+    args.scale = 2
     args.epochs = 500
     trianer = Trainer(args=args)
     trianer.train()
