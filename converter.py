@@ -10,7 +10,7 @@ class Converter:
     def __init__(self):
         self.trained_model = keras.models.load_model('trained_model/SRCNN.h5', compile=False)
         self.save_model = bulid_model(n_colors=3)
-        self.save_model.build([1, 480, 640, 3 ])
+        self.save_model.build([1, 240, 320, 3 ])
         for layer in self.save_model.layers:
             try:
                 layer.set_weights(self.trained_model.get_layer(name=layer.name).get_weights())

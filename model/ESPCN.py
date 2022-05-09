@@ -1,8 +1,10 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 from tensorflow import keras
 import tensorflowjs as tfjs
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 class ESCPN(keras.Model):
     def __init__(self, n_colors, scale):
@@ -25,12 +27,15 @@ class ESCPN(keras.Model):
 
 if __name__ == '__main__':
     net = ESCPN(3, 2)
-    net.build((1, 480, 640, 3))
-    print(net.summary())
+    # net.build((1, 240, 320, 3))
+    # print(net.summary())
+    # net.save('trained_model/ESCPN')
 
-    input_dummy = tf.ones([1, 480, 640, 3])
+
+    input_dummy = tf.ones([1, 240, 320, 3 ])
     output_dummy = net(input_dummy)
     print(output_dummy)
+    net.save('trained_model/ESCPN')
 
     # tfjs_target_dir = 'tfjs_model'
     # tfjs.converters.save_keras_model(net, tfjs_target_dir)
